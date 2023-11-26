@@ -1,23 +1,39 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
+#include "hardware/pio.h"
+#include "counter.pio.h"
 
 #define LED_PIN PICO_DEFAULT_LED_PIN
 
 int main(void)
 {
-    stdio_init_all();
+#ifndef PICO_DEFAULT_LED_PIN
+#warning pio/hello_pio example requires a board with a regular LED
+#else
+    // Choose which PIO instance to use (there are two instances)
+    PIO pio = pio0;
 
-    gpio_init(LED_PIN);
-    gpio_set_dir(LED_PIN, GPIO_OUT);
+    // Our assembled program needs to be loaded into this PIO's instruction
+    // memory. This SDK function will find a location (offset) in the
+    // instruction memory where there is enough space for our program. We need
+    // to remember this location!
+    uint offset = pio_add_program(pio, &hello_program);
 
-    for (;;) {
-        printf("LED on\n");
-        gpio_put(LED_PIN, 1);
-        sleep_ms(100);
-        printf("LED off\n");
-        gpio_put(LED_PIN, 0);
-        sleep_ms(100);
+    // Find a free state machine on our chosen PIO (erroring if there are
+    // none). Configure it to run our program, and start it, using the
+    // helper function we included in our .pio file.
+    uint sm = pio_claim_unused_sm(pio, true);
+    hello_program_init(pio, sm, offset, PICO_DEFAULT_LED_PIN);
+
+    // The state machine is now running. Any value we push to its TX FIFO will
+    // appear on the LED pin.
+    while (true) {
+        // Blink
+        pio_sm_put_blocking(pio, sm, 1);
+        sleep_ms(500);
+        // Blonk
+        pio_sm_put_blocking(pio, sm, 0);
+        sleep_ms(500);
     }
-
-    return 0;
+#endif
 }
