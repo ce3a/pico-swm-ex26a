@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/pio.h"
+#include "hardware/clocks.h"
 #include "counter.pio.h"
 
 #ifndef PICO_DEFAULT_LED_PIN
@@ -11,6 +12,7 @@
 #define PIN_CNT     16u
 
 #define N_PULSES    45u     // Number of pulses per liter
+#define PIO_FREQ    2000    // PIO clock speed
 
 int main(void)
 {
@@ -19,8 +21,9 @@ int main(void)
     PIO pio = pio0;
     const uint offset = pio_add_program(pio, &counter_program);
     const uint sm = pio_claim_unused_sm(pio, true);
+    float div = (float)clock_get_hz(clk_sys) / PIO_FREQ;
 
-    counter_program_init(pio, sm, offset, PIN_CNT, PIN_LED);
+    counter_program_init(pio, sm, offset, PIN_CNT, PIN_LED, div);
 
     // Configure number of pulses to count.
     // Fill two slots, in order to not block the PIO.
