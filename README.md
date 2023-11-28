@@ -80,3 +80,4 @@ continue
 1. [RP2040 Datasheet](https://datasheets.raspberrypi.com/rp2040/rp2040-datasheet.pdf)
 2. [Getting started with Raspberry Pi Pico](https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf)
 3. [Raspberry Pi Pico C/C++ sdk](https://datasheets.raspberrypi.com/pico/raspberry-pi-pico-c-sdk.pdf)
+4. [Pico C SDK Doxygen](https://www.raspberrypi.com/documentation/pico-sdk/index_doxygen.html)
