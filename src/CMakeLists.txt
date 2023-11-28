@@ -16,10 +16,10 @@ target_link_libraries(${tgt} PRIVATE pico_stdlib hardware_pio)
 #
 # On chip debug configuration
 #
-find_program(OPENOCD_EXECUTABLE openocd)
-if(OPENOCD_EXECUTABLE)
+find_program(openocd_EXECUTABLE openocd)
+if(openocd_EXECUTABLE)
     add_custom_target(upload
-        COMMAND ${OPENOCD_EXECUTABLE}
+        COMMAND ${openocd_EXECUTABLE}
                 -f interface/cmsis-dap.cfg
                 -f target/rp2040.cfg
                 -c 'adapter speed 5000'
