@@ -1,0 +1,48 @@
+.program counter
+
+start:
+    set y, 1
+    mov y, ~y               ; y = total number of complete cycles
+load:
+    pull block              ; copy from CPU
+    mov x, osr              ; x = number of pulses to count
+loop:
+    mov pins, pins          ; indicate state
+    wait 0 pin 0    [31]    ; await 0
+    mov pins, pins          ; indicate state
+    wait 1 pin 0    [31]    ; await 1
+    jmp x-- loop            ; repeat x times
+    mov isr, ~y
+    push                    ; copy to CPU
+    jmp y-- load
+    jmp start
+
+
+
+% c-sdk {
+static inline void counter_program_init(PIO pio, uint sm, uint offset,
+        uint pin_cnt, uint pin_led)
+{
+    pio_sm_config c = counter_program_get_default_config(offset);
+
+    gpio_pull_up(pin_cnt);
+
+    sm_config_set_in_pins(&c, pin_cnt);
+    sm_config_set_out_pins(&c, pin_led, 1);
+
+    pio_gpio_init(pio, pin_cnt);
+    pio_gpio_init(pio, pin_led);
+
+    pio_sm_set_consecutive_pindirs(pio, sm, pin_cnt, 1, false);
+    pio_sm_set_consecutive_pindirs(pio, sm, pin_led, 1, true);
+
+    pio_sm_init(pio, sm, offset, &c);
+    pio_sm_set_enabled(pio, sm, true);
+}
+
+static inline void counter_reload(PIO pio, uint sm, uint detph, uint32_t val)
+{
+    while (detph--)
+        pio_sm_put_blocking(pio, sm, val);
+}
+%}
