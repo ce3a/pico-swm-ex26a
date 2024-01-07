@@ -6,7 +6,7 @@
 
 #ifndef PICO_DEFAULT_LED_PIN
 # error Pico board with a default LED expected.
-#else
+#endif
 
 #define PIN_LED     PICO_DEFAULT_LED_PIN
 #define PIN_CNT     16u
@@ -44,5 +44,4 @@ int main(void)
 
         sleep_ms(1000);
     }
-#endif
 }
